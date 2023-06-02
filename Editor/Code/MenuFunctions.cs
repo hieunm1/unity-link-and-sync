@@ -85,22 +85,22 @@ namespace LinkAndSync
         {
             var links = new List<LinkAndSync>();
 
-            foreach (var selected in Selection.objects)
-            {
-                links.Clear();
-                LinkAndSync.GetContainingLinks(selected, out var assetPath, links);
+            // foreach (var selected in Selection.objects)
+            // {
+            //     links.Clear();
+            //     LinkAndSync.GetContainingLinks(selected, out var assetPath, links);
 
-                foreach (var link in links)
-                {
-                    if (selected == link)
-                        continue;
+            //     foreach (var link in links)
+            //     {
+            //         if (selected == link)
+            //             continue;
 
-                    var linkRoot = link.DirectoryPath;
-                    var relativePath = assetPath.Substring(linkRoot.Length + 1);
-                    if (!link.Exclusions.Contains(relativePath))
-                        link.Exclusions.Add(relativePath);
-                }
-            }
+            //         var linkRoot = link.DirectoryPath;
+            //         var relativePath = assetPath.Substring(linkRoot.Length + 1);
+            //         if (!link.Exclusions.Contains(relativePath))
+            //             link.Exclusions.Add(relativePath);
+            //     }
+            // }
 
             ProjectWindowOverlay.ClearCache();
         }

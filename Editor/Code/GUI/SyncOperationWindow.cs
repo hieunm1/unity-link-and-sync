@@ -206,7 +206,7 @@ namespace LinkAndSync
         }
 
         /************************************************************************************************************************/
-
+        [SerializeField] private Vector2 _CopyScroll;
         private void DoCopyOperationGUI(SerializedProperty property)
         {
             var copyFrom = property.Copy();
@@ -225,6 +225,7 @@ namespace LinkAndSync
             var labelWidth = EditorGUIUtility.labelWidth;
             try
             {
+                if (isExpanded) _CopyScroll = GUILayout.BeginScrollView(_CopyScroll, GUILayout.Height(300));
                 EditorGUIUtility.labelWidth = float.Epsilon;
 
                 GUILayout.BeginHorizontal();
@@ -238,6 +239,8 @@ namespace LinkAndSync
                 GUILayout.EndVertical();
 
                 GUILayout.EndHorizontal();
+
+                if (isExpanded) GUILayout.EndScrollView();
             }
             finally
             {

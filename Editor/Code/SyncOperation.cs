@@ -1,7 +1,5 @@
 ﻿// Link & Sync // Copyright 2023 Kybernetik //
 
-#if UNITY_EDITOR
-
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value.
 
 //#define LINK_AND_SYNC_LOG
@@ -472,18 +470,18 @@ namespace LinkAndSync
                     .Substring(_LinkDirectory.Length + 1)
                     .NormalizeSlashes();
 
-                if (_Link.IsExcluded(relativeFile))
+                bool isMetaFile = relativeFile.EndsWith(".meta");
+                if (_Link.IsExcluded(relativeFile) && isMetaFile == false)
                     continue;
 
                 synchronizedPaths.Add(relativeFile);
 
-                var internalModified = File.GetLastWriteTimeUtc(internalFileNormalized);
-
                 foreach (var externalRoot in _Link.ExternalDirectories)
                 {
                     var externalFile = Path.Combine(externalRoot, relativeFile);
-                    var externalModified = File.GetLastWriteTimeUtc(externalFile);
-                    if (force || internalModified > externalModified)
+                    if (force 
+                        || (isMetaFile && File.Exists(externalFile) == false)
+                        || ReadFileInChunksAndCompareVector.IsDiff(externalFile, internalFileNormalized))
                         destinationToSource[externalFile] = internalFileNormalized;
                 }
             }
@@ -654,13 +652,6 @@ namespace LinkAndSync
                         }
 
                         rootedFiles.Add(rootedFile);
-
-                        var modified = File.GetLastWriteTimeUtc(rootedFile);
-                        if (newestModified < modified)
-                        {
-                            newestModified = modified;
-                            newest = rootedFile;
-                        }
                     }
 
                     // Copy it over all others.
@@ -670,9 +661,10 @@ namespace LinkAndSync
 
                         foreach (var rootedFile in rootedFiles)
                         {
-                            var modified = File.GetLastWriteTimeUtc(rootedFile);
-                            if (force || newestModified > modified)
+                            if (force || ReadFileInChunksAndCompareVector.IsDiff(rootedFile, newest))
+                            {
                                 destinationToSource[rootedFile] = newest;
+                            }
                         }
                     }
 
@@ -813,5 +805,3 @@ namespace LinkAndSync
         /************************************************************************************************************************/
     }
 }
-
-#endif

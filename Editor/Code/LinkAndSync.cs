@@ -1,10 +1,9 @@
 ﻿// Link & Sync // Copyright 2023 Kybernetik //
 
-#if UNITY_EDITOR
-
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value.
 
 using System;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -121,6 +120,7 @@ namespace LinkAndSync
         private FileSystemWatcherGroup _ExternalDirectoryWatcher;
 
         /************************************************************************************************************************/
+        static Regex extensionRegex = new Regex("^(\\.\\w+)+$");
 
         public bool IsExcluded(string relativePath)
         {
@@ -129,10 +129,11 @@ namespace LinkAndSync
                 return false;
 
             relativePath = relativePath.NormalizeSlashes();
-
             for (int i = 0; i < Exclusions.Count; i++)
             {
                 var exclusion = Exclusions[i] = Exclusions[i].NormalizeSlashes();
+                if (extensionRegex.IsMatch(exclusion) && relativePath.EndsWith(exclusion))
+                    return true;
 
                 if (relativePath.Length >= exclusion.Length &&
                     string.Compare(relativePath, 0, exclusion, 0, exclusion.Length) == 0)
@@ -292,5 +293,3 @@ namespace LinkAndSync
         /************************************************************************************************************************/
     }
 }
-
-#endif

@@ -1,6 +1,7 @@
 ﻿// Link & Sync // Copyright 2023 Kybernetik //
 
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -62,7 +63,7 @@ namespace LinkAndSync
         /************************************************************************************************************************/
 #if UNITY_EDITOR
         /************************************************************************************************************************/
-
+        static Regex extensionRegex = new Regex("^(\\.\\w+)+$");
         protected override bool Validate(SerializedProperty property, ref string path)
         {
             if (path.StartsWith(".."))
@@ -73,6 +74,8 @@ namespace LinkAndSync
             var targetObjects = property.serializedObject.targetObjects;
             if (targetObjects.Length != 1)
                 return false;
+
+            if (extensionRegex.IsMatch(path)) return true;
 
             var assetPath = AssetDatabase.GetAssetPath(targetObjects[0]);
             if (string.IsNullOrEmpty(assetPath))
